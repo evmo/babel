@@ -30,6 +30,10 @@
 
 * Chapter 2: Do it, do it again, and again, and again
 
+- ~cond~: asks questions
+- ~lambda~: creates a function
+- ~define~: gives it a name
+
 ** lat? (list of atoms)
 
 #+BEGIN_SRC scheme :session
@@ -439,7 +443,7 @@ recur in the first branch of the ~cond~, not just the 2nd
 Always change at least one argument while recurring. It must be changed to be closer to termination. The changing argument must be tested in the termination condition: when using ~cdr~, test termination with ~null?~.
 #+end_quote
 
-* COMMENT Chapter 4: Numbers Games
+* Chapter 4: Numbers Games
 
 #+BEGIN_SRC scheme :session
 (define add1
@@ -464,11 +468,11 @@ Always change at least one argument while recurring. It must be changed to be cl
 : 66
 
 #+BEGIN_SRC scheme :session
-(zero? 1)
+(zero? 0)
 #+END_SRC
 
 #+RESULTS:
-: #f
+: #t
 
 #+BEGIN_SRC scheme :session
 (+ 46 12)
@@ -480,15 +484,18 @@ Always change at least one argument while recurring. It must be changed to be cl
 What does this function do?
 
 #+BEGIN_SRC scheme :session
-(define blah
+(define plus
   (lambda (x y)
     (cond
      ((zero? y) x)
      (else
-      (add1 (blah x (sub1 y)))))))
+      (add1 (plus x (sub1 y)))))))
 
-(blah 3 2)
+(plus 3 2)
 #+END_SRC
+
+#+RESULTS:
+: 5
 
 The function adds two numbers.
 Translation to R:
@@ -497,21 +504,21 @@ Translation to R:
 add1 <- function(x) x + 1
 sub1 <- function(x) x - 1
 
-blah <- function(x, y) {
+plus <- function(x, y) {
   if (y == 0) x
-  else add1(blah(x, sub1(y)))
+  else add1(plus(x, sub1(y)))
 }
 
-blah(3, 2)
+plus(3, 2)
 #+END_SRC
 
 #+RESULTS:
 : 5
 
 x=3; y=2
-blah(3,2)
-add1(blah(3,1))
-add1(add1(blah(3,0)))
+plus(3,2)
+add1(plus(3,1))
+add1(add1(plus(3,0)))
 add1(add1(3))
 5
 
@@ -519,14 +526,14 @@ add1(add1(3))
 ~add1~ = ~cons~
 
 #+BEGIN_SRC scheme :session
-(define subtract
+(define minus
   (lambda (x y)
     (cond
      ((zero? y) x)
      (else
-      (sub1 (subtract x (sub1 y)))))))
+      (sub1 (minus x (sub1 y)))))))
 
-(subtract 9 2)
+(minus 9 2)
 #+END_SRC
 
 #+RESULTS:
@@ -534,13 +541,15 @@ add1(add1(3))
 
 ** tuples
 
-number:
-- zero or one added to a cdr of a tuple
-- terminal condition: ~(zero? n)~
-- recursion: ~(sub1 n)~
-
 list of numbers (or empty list)
 equivalent of ~lat~, but for numbers
+
+|                    | lat                 | tuple        |
+|--------------------+---------------------+--------------|
+|                    | empty list          | empty list   |
+|                    | (car lat)+(cdr lat) | number+tuple |
+| natural recursion  | (cdr lat)           | (cdr tup)    |
+| terminal condition | (null? lat)         | (zero? n)    |
 
 ** First Commandment (rev 1)
 
@@ -549,28 +558,28 @@ equivalent of ~lat~, but for numbers
 
 ** addtup
 
-#+BEGIN_SRC scheme :session
-(define add blah)
+Build a number by totaling all the numbers in a tup:
 
+#+BEGIN_SRC scheme :session
 (define addtup
   (lambda (tup)
     (cond
      ((null? tup) 0)
      (else
-      (add (car tup)
-           (addtup (cdr tup)))))))
+      (plus (car tup)
+            (addtup (cdr tup)))))))
 
-(addtup '(3 5 2 8))
+(addtup '(3 6 2 8))
 #+END_SRC
 
 #+RESULTS:
-: 18
+: 19
 
 ** Fourth Commandment (rev 1)
 
 Always change at least one argument while recurring. It must be changed to be closer to termination. The changing argument must be tested in the termination condition:
-- when using cdr, test termination with null?
-- when using sub1, test termination with zero?
+- when using cdr, test termination with ~null?~
+- when using sub1, test termination with ~zero?~
 
 ** times
 
@@ -581,7 +590,7 @@ Always change at least one argument while recurring. It must be changed to be cl
     (cond
      ((zero? y) 0)
      (else
-      (add x (times x (sub1 y)))))))
+      (plus x (times x (sub1 y)))))))
 
 (times 4 3)
 #+END_SRC
@@ -597,7 +606,7 @@ Always change at least one argument while recurring. It must be changed to be cl
 
 ** Fifth Commandment
 
-- When building a value with ~add~, always use 0 for the value of the terminating line, for adding 0 does not change the value of an addition.
+- When building a value with ~plus~, always use 0 for the value of the terminating line, for adding 0 does not change the value of an addition.
 - When building a value with ~times~, always use 1 for the value of the terminating line, for multiplying by 1 does not change the value of a multiplication.
 - When building a value with ~cons~, always consider () for the value of the terminating line.
 
@@ -615,8 +624,8 @@ returning a new tup of the same length.
       (quote()))
      (else
       (cons
-       (add (car tup1)
-            (car tup2))
+       (plus (car tup1)
+             (car tup2))
        (add2tups (cdr tup1)
                  (cdr tup2)))))))
 
@@ -627,3 +636,94 @@ returning a new tup of the same length.
 
 #+RESULTS:
 | 11 | 11 | 11 | 11 | 11 |
+
+** add2tups-any
+
+Same as ~add2tups~ but works for any two tups even if unequal lengths.
+
+#+BEGIN_SRC scheme :session
+(define add2tups-any
+  (lambda (tup1 tup2)
+    (cond
+     ((null? tup1) tup2)
+     ((null? tup2) tup1)
+     (else
+      (cons
+       (plus (car tup1)
+             (car tup2))
+       (add2tups-any (cdr tup1)
+                     (cdr tup2)))))))
+
+(define tup1 '(3 7))
+(define tup2 '(4 6 8 1))
+(add2tups-any tup1 tup2)
+#+END_SRC
+
+#+RESULTS:
+| 7 | 13 | 8 | 1 |
+
+** gt
+
+#+BEGIN_SRC scheme :session
+(define gt
+  (lambda (n m)
+    (cond
+     ((zero? n) #f)
+     ((zero? m) #t)
+     (else
+      (gt (sub1 n) (sub1 m))))))
+
+(gt 133 12)
+#+END_SRC
+
+#+RESULTS:
+: #t
+
+** lt
+
+#+BEGIN_SRC scheme :session
+(define lt
+  (lambda (n m)
+    (cond
+     ((zero? m) #f)
+     ((zero? n) #t)
+     (else
+      (lt (sub1 n) (sub1 m))))))
+
+(lt 133 12)
+#+END_SRC
+
+#+RESULTS:
+: #f
+
+** eq
+
+#+BEGIN_SRC scheme :session
+(define eq
+  (lambda (n m)
+    (cond
+     ((zero? m) (zero? n))
+     ((zero? n) #f)
+     (else
+      (eq (sub1 n) (sub1 m))))))
+
+(eq 3 2)
+#+END_SRC
+
+#+RESULTS:
+: #f
+
+Define ~eq~ in terms of ~gt~ and ~lt~:
+
+#+BEGIN_SRC scheme :session
+(define eq'
+  (lambda (n m)
+    (cond
+     ((gt n m) #f)
+     ((lt n m) #f)
+     (else #t))))
+
+(eq' 2 3)
+#+END_SRC
+
+#+RESULTS:
