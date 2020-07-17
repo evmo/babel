@@ -389,9 +389,6 @@ recur in the first branch of the ~cond~, not just the 2nd
 (multiinsertR new old lat)
 #+END_SRC
 
-#+RESULTS:
-| chips | and | fish | fried | or | fish | fried | and | fried |
-
 ** multiinsertL
 
 #+BEGIN_SRC scheme :session
@@ -481,7 +478,7 @@ Always change at least one argument while recurring. It must be changed to be cl
 #+RESULTS:
 : 58
 
-What does this function do?
+** plus
 
 #+BEGIN_SRC scheme :session
 (define plus
@@ -493,9 +490,6 @@ What does this function do?
 
 (plus 3 2)
 #+END_SRC
-
-#+RESULTS:
-: 5
 
 The function adds two numbers.
 Translation to R:
@@ -582,6 +576,9 @@ Always change at least one argument while recurring. It must be changed to be cl
 - when using sub1, test termination with ~zero?~
 
 ** times
+
+If the multiplier (y) is 0, return 0
+Else, add the multiplicand (x) to (x times y-1)
 
 #+BEGIN_SRC scheme :session
 ; multiply x by y
@@ -727,3 +724,68 @@ Define ~eq~ in terms of ~gt~ and ~lt~:
 #+END_SRC
 
 #+RESULTS:
+
+** expt - raise number to an exponent
+
+If the exponent is 0, return 1.
+Else, multiply the number by the number raised to (exponent minus 1)
+
+#+BEGIN_SRC scheme :session
+(define expt'
+  (lambda (n m)
+    (cond
+     ((zero? m) 1)
+     (else
+      (times n (expt' n (sub1 m)))))))
+
+(expt' 2 3)
+#+END_SRC
+
+#+RESULTS:
+: 8
+
+** quotient
+
+If the divisor (n) is less than the dividend (m), return 0
+Else, divide (n - m) by m, then add 1 to the result.
+
+#+BEGIN_SRC scheme :session
+(define quotient'
+  (lambda (n m)
+    (cond
+     ((lt n m) 0)
+     (else
+      (add1 (quotient'
+             (minus n m) m))))))
+
+(quotient' 10 2)
+#+END_SRC
+
+#+RESULTS:
+: 5
+
+(quotient' 15 4) = 1 + (quotient' 11 4)
+                 = 1 + (1 + (quotient' 7 4))
+                 = 1 + (1 + (1 + (quotient' 3 4))
+                 = 1 + (1 + (1 + 0))
+                 = 3
+
+** length
+
+If lat is empty, return 0
+Else, 1 + (length (cdr lat))
+
+#+BEGIN_SRC scheme :session
+(define length
+  (lambda (lat)
+    (cond
+     ((null? lat) 0)
+     (else
+      (add1 (length (cdr lat)))))))
+
+(define lat1 '(ham and cheese on rye))
+(length lat1)
+#+END_SRC
+
+#+RESULTS:
+: 5
