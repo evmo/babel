@@ -491,6 +491,9 @@ Always change at least one argument while recurring. It must be changed to be cl
 (plus 3 2)
 #+END_SRC
 
+#+RESULTS:
+: 5
+
 The function adds two numbers.
 Translation to R:
 
@@ -695,6 +698,10 @@ Same as ~add2tups~ but works for any two tups even if unequal lengths.
 
 ** eq
 
+Test the equality of two numeric atoms.
+
+Recall, ~eq?~ tests equality of non-numeric atoms.
+
 #+BEGIN_SRC scheme :session
 (define eq
   (lambda (n m)
@@ -724,6 +731,7 @@ Define ~eq~ in terms of ~gt~ and ~lt~:
 #+END_SRC
 
 #+RESULTS:
+: #f
 
 ** expt - raise number to an exponent
 
@@ -859,3 +867,127 @@ Return a lat with all the numbers removed from the input lat.
 
 #+RESULTS:
 | pears | prunes | dates |
+
+** all-nums
+
+Return a lat with ONLY the numbers from the input list.
+
+- If lat is null, return empty list
+- If (car lat) is a number, cons (car lat) onto (all-nums (cdr lat))
+- Else, return (all-nums (cdr lat))
+
+#+BEGIN_SRC scheme :session
+(define all-nums
+  (lambda (lat)
+    (cond
+     ((null? lat) (quote()))
+     (else
+      (cond
+       ((number? (car lat)) (cons (car lat)
+                                  (all-nums (cdr lat))))
+       (else
+        (all-nums (cdr lat))))))))
+
+(all-nums lat)
+#+END_SRC
+
+#+RESULTS:
+| 5 | 6 | 9 |
+
+** eqan?
+
+Tests the equality of /any/ two atoms.
+
+Recall, ~eq?~ tests equality of non-numeric atoms, and ~eq~ tests equality of numeric atoms.
+
+- If the atoms are both numbers, return (eq a1 a2).
+- Then, if either is a number, return false.
+- Else, they both must be non-numeric, therefore return (eq? a1 a2).
+
+#+BEGIN_SRC scheme :session
+(define eqan?
+  (lambda (a1 a2)
+    (cond
+     ((and (number? a1) (number? a2)) (eq a1 a2))
+     ((or  (number? a1) (number? a2)) #f)
+     (else
+      (eq? a1 a2)))))
+
+(eq? 'a 1)
+#+END_SRC
+
+#+RESULTS:
+: #f
+
+** occur
+
+Counts the number of times an atom appears in a lat.
+
+- If lat is null, return 0
+- Else:
+  + If (car lat) equals the atom, recur on (cdr lat) plus 1
+  + Else, recur on cdr lat
+
+#+BEGIN_SRC scheme :session
+(define occur
+  (lambda (a lat)
+    (cond
+     ((null? lat) 0)
+     (else
+      (cond
+       ((eq? (car lat) a)
+        (add1 (occur a (cdr lat))))
+       (else
+        (occur a (cdr lat))))))))
+
+(define lat '(bacon and eggs and hot sauce))
+(occur 'and lat)
+#+END_SRC
+
+#+RESULTS:
+: 2
+
+** one?
+
+Test if a numeric atom is 1.
+
+- If the atom is zero, return false.
+- Else, return true if the atom minus is zero, otherwise false.
+- No recursion!
+
+#+BEGIN_SRC scheme :session
+(define one?
+  (lambda (n)
+    (cond
+     ((zero? n) #f)
+     (else
+      (zero? (sub1 n))))))
+
+; can be simplified!
+(define one?? (lambda (n) (eq n 1)))
+
+(one?? 1)
+#+END_SRC
+
+#+RESULTS:
+: #t
+
+** rempick'
+
+Recall ~rempick~, which removes the nth atom from a list. Rewrite ~rempick~ using ~one?~.
+
+#+BEGIN_SRC scheme :session
+(define rempick'
+  (lambda (n lat)
+    (cond
+     ((one? n) (cdr lat))
+     (else
+      (cons (car lat)
+            (rempick' (sub1 n) (cdr lat)))))))
+
+(define lat '(lemon meringue salty pie))
+(rempick' 3 lat)
+#+END_SRC
+
+#+RESULTS:
+| lemon | meringue | pie |
