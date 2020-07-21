@@ -45,6 +45,9 @@
       (else #f))))
 #+END_SRC
 
+#+RESULTS:
+: #<unspecified>
+
 ** cond
 
 #+begin_quote cite="https://stackoverflow.com/a/47265444/9375330"
@@ -270,6 +273,9 @@ When building a list, describe the first typical element, and then ~cons~ it ont
               (subst2 new o1 o2 (cdr lat)))))))))
 #+END_SRC
 
+#+RESULTS:
+: #<unspecified>
+
 Notice repeated code: ~(eq? (car lat) o1)~
 Can simpify with ~or~
 
@@ -322,6 +328,9 @@ recall ~rember~:
                    (rember a (cdr lat)))))))))
 #+END_SRC
 
+#+RESULTS:
+: #<unspecified>
+
 The only thing we need to change is to also recur in the first branch of the ~cond~.
 
 #+BEGIN_SRC scheme :session
@@ -365,6 +374,9 @@ recall ~insertR~:
                (insertR new old (cdr lat)))))))))
 #+END_SRC
 
+#+RESULTS:
+: #<unspecified>
+
 what do we need to change?
 recur in the first branch of the ~cond~, not just the 2nd
 
@@ -388,6 +400,9 @@ recur in the first branch of the ~cond~, not just the 2nd
 (define old 'fish)
 (multiinsertR new old lat)
 #+END_SRC
+
+#+RESULTS:
+| chips | and | fish | fried | or | fish | fried | and | fried |
 
 ** multiinsertL
 
@@ -991,3 +1006,33 @@ Recall ~rempick~, which removes the nth atom from a list. Rewrite ~rempick~ usin
 
 #+RESULTS:
 | lemon | meringue | pie |
+
+* Chapter 5: *Oh my Gawd*: It's Full of Stars
+
+** rember*
+
+Remove an atom from a list. Works on any list, even nested lists, not just lists of atoms.
+
+#+BEGIN_SRC scheme :session
+(define rember*
+  (lambda (a l)
+    (cond
+     ((null? l) (quote()))
+     ((atom? (car l))
+      (cond
+       ((eq? (car l) a) (rember* a (cdr l)))
+       (else
+        (cons (car l)
+              (rember* a (cdr l))))))
+     (else
+      (cons (rember* a (car l))
+            (rember* a (cdr l)))))))
+
+(define l '(((tomato sauce)) ((bean) sauce) (and ((flying)) sauce)))
+(rember* 'sauce l)
+#+END_SRC
+
+#+RESULTS:
+| (tomato) |            |
+| (bean)   |            |
+| and      | ((flying)) |
