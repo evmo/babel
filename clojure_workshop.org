@@ -1,0 +1,76 @@
+#+TITLE: Clojure Workshop
+
+* Chapter 1: Hello REPL!
+
+#+BEGIN_SRC clojure
+(def base-co2 382)
+(def base-year 2006)
+
+(defn co2-estimate
+  "Returns an estimate of atmospheric carbon dioxide in PPM."
+  [year]
+  (let [year-diff (- year 2006)]
+   (+ 382 (* 2 year-diff ))))
+
+(co2-estimate 2050)
+#+END_SRC
+
+#+RESULTS:
+| #'user/base-co2     |
+| #'user/base-year    |
+| #'user/co2-estimate |
+| 470                 |
+
+** Truthiness, nil, and equality
+
+- ~false~ and ~nil~ are "falsey"
+- everything else (including zero and the empty list) is "truthy"
+
+predicate functions: true?, false?, nil?
+
+- ~and~ returns the first falsey value encountered. If all values are truthy, it returns the last value.
+- ~or~ returns the first truthy value, or if all are falsey, the last value.
+
+Write a function that returns "Valid" if x is between 1 and 100 (inclusive) OR a multiple of 100, or "Invalid" otherwise.
+
+#+BEGIN_SRC clojure
+(defn valid-num [x]
+  (if (or (<= 1 x 100)
+          (= 0 (mod x 100)))
+    "Valid"
+    "Invalid"))
+
+(valid-num 55)
+(valid-num 170)
+(valid-num 200)
+#+END_SRC
+
+#+RESULTS:
+| #'user/valid-num |
+| "Valid"          |
+| "Invalid"        |
+| "Valid"          |
+
+** meditate
+
+#+BEGIN_SRC clojure
+(require '[clojure.string :as stg])
+
+(defn meditate
+  "Return a transformation of a string `s`
+   based on `calmness-level`"
+  [s calmness-level]
+  (cond
+    (< calmness-level 5)
+     (stg/upper-case (str s ", I TELL YA!"))
+    (<= 5 calmness-level 9)
+     (stg/capitalize s)
+    (= 10 calmness-level)
+     (stg/reverse s)))
+
+(meditate "the dude abides" 1)
+#+END_SRC
+
+#+RESULTS:
+| #'user/meditate               |
+| "THE DUDE ABIDES, I TELL YA!" |
