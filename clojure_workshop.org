@@ -69,8 +69,12 @@ Write a function that returns "Valid" if x is between 1 and 100 (inclusive) OR a
      (stg/reverse s)))
 
 (meditate "the dude abides" 1)
+(meditate "the dude abides" 6)
+(meditate "the dude abides" 10)
 #+END_SRC
 
 #+RESULTS:
 | #'user/meditate               |
 | "THE DUDE ABIDES, I TELL YA!" |
+| "The dude abides"             |
+| "sediba edud eht"             |
