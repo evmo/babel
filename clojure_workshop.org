@@ -78,3 +78,63 @@ Write a function that returns "Valid" if x is between 1 and 100 (inclusive) OR a
 | "THE DUDE ABIDES, I TELL YA!" |
 | "The dude abides"             |
 | "sediba edud eht"             |
+
+* Chapter 2: Data Types & Immutability
+
+Simple, immutable data types:
+
+** strings
+
+- "This is a string"
+- At Java level, a collection of characters
+
+*** string functions:
+
+#+BEGIN_SRC clojure :results output
+(clojure.repl/dir clojure.string)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+blank?
+capitalize
+ends-with?
+escape
+includes?
+index-of
+join
+last-index-of
+lower-case
+re-quote-replacement
+replace
+replace-first
+reverse
+split
+split-lines
+starts-with?
+trim
+trim-newline
+triml
+trimr
+upper-case
+#+end_example
+
+** numbers
+
+- implemented as java.lang.Long
+- rations represented literally: 5/4
+- decimals are "double" floating-point
+- combining float & int produces a float
+
+Using Java math libraries:
+
+#+BEGIN_SRC clojure
+(Math/random)
+(Math/sqrt 9)
+(Math/round 0.7)
+#+END_SRC
+
+#+RESULTS:
+| 0.8761892477268161 |
+|                3.0 |
+|                  1 |
