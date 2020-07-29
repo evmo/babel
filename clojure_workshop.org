@@ -138,3 +138,5 @@ Using Java math libraries:
 | 0.8761892477268161 |
 |                3.0 |
 |                  1 |
+
+** Obfuscation Machine
