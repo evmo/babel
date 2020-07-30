@@ -140,3 +140,70 @@ Using Java math libraries:
 |                  1 |
 
 ** Obfuscation Machine
+
+#+BEGIN_SRC clojure
+(clojure.string/replace
+ "Hello World"
+ #"\w"
+ (fn [letter]
+   (do (println letter) "!")))
+#+END_SRC
+
+#+RESULTS:
+: !!!!! !!!!!
+
+Write an ~encode~ function that, for each letter in a word:
+
+- get the char's ASCII value
+- add to that number the # of words in the sentence
+- get the square of that number
+
+Clojure functions to use: char-array, first, int, Math/pow, clojure.string/replace, clojure.string/split, count
+
+First, write a function to encode a single letter.
+
+#+BEGIN_SRC clojure
+(defn encode-letter1
+  [s x]
+  (str "#"
+       (int (Math/pow
+             (+ x (int (first (char-array s))))
+             2))))
+
+; now using `let` to get an intermediate value for the code
+(defn encode-letter
+  [s x]
+  (let [code
+    (Math/pow (+ (int (first (char-array s)))) 2)]
+    (str "#" (int code))))
+
+(encode-letter1 "a" 2)
+(encode-letter "a" 3)
+#+END_SRC
+
+#+RESULTS:
+| #'user/encode-letter1 |
+| #'user/encode-letter  |
+| "#9801"               |
+| "#9409"               |
+
+Then, encode the sentence by:
+
+- Replacing each letter with the result of ~encode-letter~.
+- Get # of words in sentence by splitting the string on '#'
+
+#+BEGIN_SRC clojure
+(require '[clojure.string :as stg])
+
+(defn encode
+  [s]
+  (let [number-of-words (count (stg/split s #"\w"))]
+    (stg/replace s #"\w"
+      (fn [s] (encode-letter s number-of-words)))))
+
+(encode "Super secret")
+#+END_SRC
+
+#+RESULTS:
+| #'user/encode                                                       |
+| "#6889#13689#12544#10201#12996 #13225#10201#9801#12996#10201#13456" |
