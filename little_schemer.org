@@ -1116,7 +1116,7 @@ It must be changed to be closer to termination. The changing argument must be te
 - If (car l) is an atom:
   + If (car l) = `a`, return 1 + recursion on (cdr l)
   + Else, recur on (cdr l)
-- Else, add recursion of (car l) plus recursion of (cdr l)
+- Else, return recursion of (car l) plus recursion of (cdr l)
 
 #+BEGIN_SRC scheme :session
 (define occur*
@@ -1140,3 +1140,39 @@ It must be changed to be closer to termination. The changing argument must be te
 
 #+RESULTS:
 : 5
+
+** subst*
+
+- If `l` is null, return the empty list
+- If (car l) is an atom:
+  + If (car l) = old, cons new onto the recursion of (cdr l)
+  + Else, cons (car l) onto the recursion of (cdr l)
+- Else, cons the recursion of (car l) onto the recursion of (cdr l)
+
+#+BEGIN_SRC scheme :session
+(define subst*
+  ; Replace all instances of the atom `old`
+  ; with the atom `new` in a list `l`
+  (lambda (new old l)
+    (cond
+     ((null? l) (quote()))
+     ((atom? (car l))
+      (cond
+       ((eq? old (car l))
+        (cons new (subst* new old (cdr l))))
+       (else
+        (cons (car l) (subst* new old (cdr l))))))
+     (else
+      (cons (subst* new old (car l))
+            (subst* new old (cdr l)))))))
+
+(define l '((orange) (split ((((orange ice))) (cream (orange)) sherbet)) (orange) (bread) (orange brandy)))
+(subst* 'orange 'banana l)
+#+END_SRC
+
+#+RESULTS:
+| orange |                                             |
+| split  | ((((orange ice))) (cream (orange)) sherbet) |
+| orange |                                             |
+| bread  |                                             |
+| orange | brandy                                      |
