@@ -936,7 +936,7 @@ Recall, ~eq?~ tests equality of non-numeric atoms, and ~eq~ tests equality of nu
 
 ** occur
 
-Counts the number of times an atom appears in a lat.
+Counts the occurrences of an atom in a lat.
 
 - If lat is null, return 0
 - Else:
@@ -1079,6 +1079,7 @@ Insert a ~new~ atom to the right of each instance of an ~old~ atom, in a list ~l
 #+RESULTS:
 | (how much (wood)) | could | ((a (wood) chuck roast)) | (((chuck roast))) | (if (a) ((wood chuck roast))) | could | chuck | roast | wood |
 
+
 ~rember*~ and ~insertR*~ both recur with the car, whenever car is a list, as well as with with cdr.
 
 All *-functions work on lists that are either:
@@ -1110,3 +1111,32 @@ It must be changed to be closer to termination. The changing argument must be te
 - when using sub1, tets termination with zero?
 
 ** occur*
+
+- If `l` is null, return 0
+- If (car l) is an atom:
+  + If (car l) = `a`, return 1 + recursion on (cdr l)
+  + Else, recur on (cdr l)
+- Else, add recursion of (car l) plus recursion of (cdr l)
+
+#+BEGIN_SRC scheme :session
+(define occur*
+  ; Counts the occurrences of an atom `a` in a list `l`
+  (lambda (a l)
+    (cond
+     ((null? l) 0)
+     ((atom? (car l))
+      (cond
+       ((eq? a (car l))
+        (add1 (occur* a (cdr l))))
+       (else
+        (occur* a (cdr l)))))
+     (else
+      (plus (occur* a (car l))
+            (occur* a (cdr l)))))))
+
+(define l '((banana) (split ((((banana ice))) (cream (banana)) sherbet)) (banana) (bread) (banana brandy)))
+(occur* 'banana l)
+#+END_SRC
+
+#+RESULTS:
+: 5
