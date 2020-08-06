@@ -77,8 +77,9 @@ If all the test-expressions evaluate to #f (the false value), and an else clause
   (lambda (a lat)
     (cond
      ((null? lat) #f)
-     (else (or (eq? (car lat) a)
-               (member? a (cdr lat)))))))
+     (else
+      (or (eq? (car lat) a)
+          (member? a (cdr lat)))))))
 
 (define lat '(mashed potatoes and meat gravy))
 (define a 'meat)
@@ -1143,7 +1144,7 @@ It must be changed to be closer to termination. The changing argument must be te
 
 ** subst*
 
-- If `l` is null, return the empty list
+- If `l` is null, return an empty list
 - If (car l) is an atom:
   + If (car l) = old, cons new onto the recursion of (cdr l)
   + Else, cons (car l) onto the recursion of (cdr l)
@@ -1176,3 +1177,67 @@ It must be changed to be closer to termination. The changing argument must be te
 | orange |                                             |
 | bread  |                                             |
 | orange | brandy                                      |
+
+** insertL*
+
+- If `l` is null, return an empty list.
+- If (car l) is an atom:
+  + If (car l) = old, cons new onto old onto the recursion of (cdr l)
+  + Else, cons (car l) onto the recursion of (cdr l)
+- Else, (car l) is not an atom, so cons the recursion of (car l) onto the recursion of (cdr l)
+
+#+BEGIN_SRC scheme :session
+(define insertL*
+  ; Insert an atom `new` to the left of all instances
+  ; of the atom `old`, in a list `l`
+  (lambda (new old l)
+    (cond
+     ((null? l) (quote()))
+     ((atom? (car l))
+      (cond
+       ((eq? (car l) old)
+        (cons new (cons old (insertL* new old (cdr l)))))
+       (else
+        (cons (car l) (insertL* new old (cdr l))))))
+     (else
+      (cons (insertL* new old (car l))
+            (insertL* new old (cdr l)))))))
+
+(define l '((how much (wood)) could ((a (wood) chuck)) (((chuck))) (if (a) ((wood chuck))) could chuck wood))
+
+(insertL* 'pecker 'chuck l)
+#+END_SRC
+
+#+RESULTS:
+| (how much (wood)) | could | ((a (wood) pecker chuck)) | (((pecker chuck))) | (if (a) ((wood pecker chuck))) | could | pecker | chuck | wood |
+
+** member*
+
+- If `l` is null, return false
+- If (car l) is an atom:
+  + (car l)==a OR recursion of (cdr l)
+- Else, (car l) is a list, so:
+  + recursion of (car l) OR recursion of (cdr l)
+
+#+BEGIN_SRC scheme :session
+(define member*
+  ; Determine whether an atom `a` is a member of a list `l`
+  (lambda (a l)
+    (cond
+     ((null? l) #f)
+     ((atom? (car l))
+      (or (eq? (car l) a)
+          (member* a (cdr l))))
+     (else
+      (or (member* a (car l))
+          (member* a (cdr l)))))))
+
+(define l '((potato) (chips ((with) fish) (chips))))
+(member* 'chips l)
+#+END_SRC
+
+#+RESULTS:
+: #t
+
+** leftmost
+pg 87
